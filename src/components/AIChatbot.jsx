@@ -43,7 +43,15 @@ const AIChatbot = ({
 
   const sendMessageToGroq = async (messages) => {
     const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-    if (!apiKey) return "Error: API key is missing.";
+    // Debug: Log if key is set (without exposing the full key)
+    console.log(
+      "Groq API Key status:",
+      apiKey
+        ? "Loaded (starts with: " + apiKey.slice(0, 3) + "...)"
+        : "Missing!"
+    );
+    if (!apiKey)
+      return "Error: API key is missing. Check your .env file and restart the dev server.";
 
     try {
       const response = await fetch(
@@ -76,7 +84,8 @@ const AIChatbot = ({
       const data = await response.json();
       return data.choices[0].message.content.trim();
     } catch (error) {
-      return `Sorry, an error occurred: "${error.message}".`;
+      console.error("Groq API Error:", error.message); // Debug: Log full error in console
+      return `Sorry, an error occurred: "${error.message}". Try checking your API key or network.`;
     }
   };
 
