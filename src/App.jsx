@@ -25,27 +25,21 @@ import MobileLevelUpModal from "./components/MobileLevelUpModal";
 const PhoneFrame = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      {/* Phone Frame */}
       <div className="relative">
-        {/* Phone Outer Frame */}
         <div className="bg-gray-800 rounded-[3rem] p-2 shadow-2xl">
-          {/* Phone Inner Frame */}
           <div className="bg-black rounded-[2.5rem] p-1">
-            {/* Screen */}
             <div className="bg-white rounded-[2rem] overflow-hidden w-[375px] h-[812px] relative">
               {children}
             </div>
           </div>
         </div>
-
-        {/* Home Indicator */}
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gray-600 rounded-full"></div>
       </div>
     </div>
   );
 };
 
-// --- MODIFIED FRAME TOGGLE BUTTON ---
+// Frame Toggle Button Component
 const FrameToggleButton = ({ isPhoneFrame, onToggle }) => {
   return (
     <button
@@ -68,7 +62,7 @@ const FrameToggleButton = ({ isPhoneFrame, onToggle }) => {
 
 // Desktop Chatbot Toggle Button
 const DesktopChatToggle = ({ showChatbot, onToggle }) => {
-  if (showChatbot) return null; // Hide when chatbot is open
+  if (showChatbot) return null;
 
   return (
     <button
@@ -84,7 +78,7 @@ const DesktopChatToggle = ({ showChatbot, onToggle }) => {
 const App = () => {
   // Custom hooks for state management
   const gamification = useGamification();
-  const lessonProgress = useLessonProgress();
+  const lessonProgress = useLessonProgress(7); // Initialized with total lessons
   const quiz = useQuiz();
 
   // UI state
@@ -138,13 +132,13 @@ const App = () => {
         }
       }
     },
-    [quiz.showQuiz, lessonProgress.setCurrentLesson, isMobile]
+    [quiz.showQuiz, lessonProgress, isMobile]
   );
 
   const handleQuizStart = useCallback(async () => {
     await quiz.startQuiz(lessonProgress.currentLesson);
     setActiveTab("quiz");
-  }, [quiz.startQuiz, lessonProgress.currentLesson]);
+  }, [quiz, lessonProgress.currentLesson]);
 
   const handleQuizSubmit = useCallback(async () => {
     if (!quiz.selectedAnswer) {
@@ -198,13 +192,7 @@ const App = () => {
         lessonProgress.completedLessons
       );
     }
-  }, [
-    quiz.selectedAnswer,
-    quiz.submitAnswer,
-    quiz.resetQuiz,
-    gamification,
-    lessonProgress,
-  ]);
+  }, [quiz, gamification, lessonProgress]);
 
   const handleNotesChange = useCallback((lessonNumber, value) => {
     setNotes((prev) => ({ ...prev, [lessonNumber]: value }));
@@ -325,7 +313,8 @@ const App = () => {
             />
           ))}
         <AppHeader
-          {...gamification}
+          vitalityPoints={gamification.vitalityPoints}
+          userLevel={gamification.userLevel}
           isMobile={useMobileLayout}
           onToggleSidebar={toggleMobileSidebar}
           onToggleChatbot={toggleMobileChatbot}
@@ -345,6 +334,8 @@ const App = () => {
             useMobileLayout ? "h-[calc(100%-64px)]" : "h-[calc(100vh-88px)]"
           } relative`}
         >
+          {/* --- FIX APPLIED IN BOTH SIDEBARS BELOW --- */}
+
           {useMobileLayout && showMobileSidebar && (
             <div
               className={`absolute left-0 top-0 h-full z-50 transform transition-transform duration-300 ${
@@ -352,10 +343,14 @@ const App = () => {
               }`}
             >
               <LessonSidebar
-                {...lessonProgress}
-                {...gamification}
+                currentLesson={lessonProgress.currentLesson}
+                completedLessons={lessonProgress.completedLessons}
                 onLessonClick={handleLessonClick}
                 collapsed={false}
+                progressPercentage={lessonProgress.getProgressPercentage()}
+                vitalityPoints={gamification.vitalityPoints}
+                userLevel={gamification.userLevel}
+                streakCount={gamification.streakCount}
                 isMobile={useMobileLayout}
                 isPhoneFrame={isPhoneFrame}
               />
@@ -364,16 +359,21 @@ const App = () => {
           {!useMobileLayout && (
             <div className="flex-shrink-0">
               <LessonSidebar
-                {...lessonProgress}
-                {...gamification}
+                currentLesson={lessonProgress.currentLesson}
+                completedLessons={lessonProgress.completedLessons}
                 onLessonClick={handleLessonClick}
                 collapsed={sidebarCollapsed}
                 onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+                progressPercentage={lessonProgress.getProgressPercentage()}
+                vitalityPoints={gamification.vitalityPoints}
+                userLevel={gamification.userLevel}
+                streakCount={gamification.streakCount}
                 isMobile={useMobileLayout}
                 isPhoneFrame={isPhoneFrame}
               />
             </div>
           )}
+
           <div className="flex-1 flex flex-col bg-white overflow-hidden">
             <ContentTabs
               activeTab={activeTab}
@@ -390,7 +390,8 @@ const App = () => {
               <AIChatbot
                 show={showChatbot}
                 onToggle={toggleDesktopChatbot}
-                {...lessonProgress}
+                currentLesson={lessonProgress.currentLesson}
+                lessonData={lessonProgress.lessonData}
                 isMobile={false}
                 isPhoneFrame={false}
               />
@@ -402,7 +403,8 @@ const App = () => {
             <AIChatbot
               show={showChatbot}
               onToggle={toggleMobileChatbot}
-              {...lessonProgress}
+              currentLesson={lessonProgress.currentLesson}
+              lessonData={lessonProgress.lessonData}
               isMobile={useMobileLayout}
               isPhoneFrame={isPhoneFrame}
             />
