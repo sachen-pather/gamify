@@ -1,0 +1,660 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --discovery-gold: #b8860b;
+  --discovery-blue: #1e3a8a;
+  --radius: 0.5rem;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: linear-gradient(135deg, #f0f9ff 0%, #fefce8 100%);
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--discovery-gold);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9b751c;
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Focus styles */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--discovery-gold);
+  outline-offset: 2px;
+}
+
+/* Enhanced animations for gamification */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: translate3d(0, -30px, 0);
+  }
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: translate3d(0, -15px, 0);
+  }
+  90% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+/* NEW: Gamification specific animations */
+@keyframes vitalityPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(184, 134, 11, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(184, 134, 11, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(184, 134, 11, 0);
+  }
+}
+
+@keyframes levelUpGlow {
+  0% {
+    box-shadow: 0 0 5px var(--discovery-gold);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--discovery-gold), 0 0 30px var(--discovery-gold);
+  }
+  100% {
+    box-shadow: 0 0 5px var(--discovery-gold);
+  }
+}
+
+@keyframes achievementShine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes streakFlame {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Custom utility classes */
+.text-discovery-gold {
+  color: var(--discovery-gold);
+}
+
+.text-discovery-blue {
+  color: var(--discovery-blue);
+}
+
+.bg-discovery-gold {
+  background-color: var(--discovery-gold);
+}
+
+.bg-discovery-blue {
+  background-color: var(--discovery-blue);
+}
+
+.border-discovery-gold {
+  border-color: var(--discovery-gold);
+}
+
+.border-discovery-blue {
+  border-color: var(--discovery-blue);
+}
+
+/* Enhanced component-specific styles */
+@layer components {
+  .lesson-card {
+    animation: slideInUp 0.3s ease-out;
+    position: relative;
+  }
+
+  .lesson-card:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+
+  .lesson-card:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+
+  /* NEW: Vitality card animations */
+  .vitality-card {
+    animation: vitalityPulse 2s infinite;
+  }
+
+  .vitality-card:hover {
+    animation: levelUpGlow 1s ease-in-out;
+  }
+
+  /* NEW: Achievement notification */
+  .animate-slideInRight {
+    animation: slideInRight 0.5s ease-out;
+  }
+
+  .achievement-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    animation: achievementShine 2s ease-in-out;
+  }
+
+  /* Enhanced quiz options */
+  .quiz-option {
+    @apply transition-all duration-200 ease-in-out relative overflow-hidden;
+  }
+
+  .quiz-option::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(184, 134, 11, 0.1),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+
+  .quiz-option:hover::before {
+    left: 100%;
+  }
+
+  .quiz-option:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+
+  .quiz-option.selected {
+    animation: pulse 0.3s ease-in-out;
+  }
+
+  /* Enhanced button styles */
+  .btn-discovery {
+    @apply bg-gradient-to-r text-white font-semibold rounded-xl px-6 py-3 transform hover:scale-105 transition-all shadow-lg hover:shadow-xl inline-flex items-center;
+    background-image: linear-gradient(to right, #b8860b, #1e3a8a);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-discovery:hover {
+    background-image: linear-gradient(to right, #9b751c, #1e40af);
+  }
+
+  .btn-discovery::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.6s;
+  }
+
+  .btn-discovery:hover::before {
+    left: 100%;
+  }
+
+  .btn-discovery:active {
+    transform: scale(0.98);
+  }
+
+  /* Enhanced card styles */
+  .card-discovery {
+    @apply bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 relative;
+  }
+
+  .card-discovery::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--discovery-gold),
+      var(--discovery-blue)
+    );
+    border-radius: 1rem 1rem 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .card-discovery:hover::before {
+    opacity: 1;
+  }
+
+  /* NEW: Streak flame animation */
+  .streak-flame {
+    animation: streakFlame 1.5s ease-in-out infinite;
+  }
+
+  /* NEW: Level up glow effect */
+  .level-glow {
+    animation: levelUpGlow 2s ease-in-out infinite;
+  }
+
+  /* NEW: Vitality points earning animation */
+  .vitality-earn {
+    animation: vitalityPulse 0.8s ease-out;
+  }
+}
+
+/* Enhanced progress bar animation */
+.progress-bar {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.2) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 50px 50px;
+  animation: move 2s linear infinite;
+}
+
+@keyframes move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 50px;
+  }
+}
+
+/* Loading spinner */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Video container responsive */
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* NEW: Achievement badge animations */
+.achievement-badge {
+  animation: bounce 1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.achievement-badge::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: achievementShine 1.5s ease-in-out infinite;
+}
+
+/* NEW: Lesson completion celebration */
+.lesson-complete {
+  animation: bounce 0.6s ease-in-out;
+}
+
+.lesson-complete::before {
+  content: "🎉";
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 1.2em;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+/* NEW: Gamification hover effects */
+.gamification-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(184, 134, 11, 0.15);
+}
+
+.vitality-display {
+  background: linear-gradient(135deg, #fef3c7, #fbbf24, #f59e0b);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Notification animations */
+.notification-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.notification-exit {
+  animation: slideInRight 0.3s ease-in reverse;
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
+}
+
+.tooltip:hover::before {
+  opacity: 1;
+}
+
+/* NEW: Scale animations for interactive elements */
+.scale-102 {
+  transform: scale(1.02);
+}
+
+.scale-101 {
+  transform: scale(1.01);
+}
+
+/* NEW: Pulse effect for new achievements */
+.pulse-achievement {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* NEW: Vitality points counter animation */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.count-up {
+  animation: countUp 0.5s ease-out;
+}
+
+/* Mobile responsiveness with enhanced gamification */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .btn-discovery {
+    @apply px-4 py-2 text-sm;
+  }
+
+  .quiz-option {
+    @apply p-3;
+  }
+
+  .card-discovery {
+    @apply shadow-md;
+  }
+
+  .vitality-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .achievement-badge {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .quiz-option {
+    @apply p-2 text-sm;
+  }
+
+  .progress-bar {
+    height: 0.5rem;
+  }
+
+  .vitality-display {
+    font-size: 0.9rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .card-discovery {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .btn-discovery {
+    background: #333 !important;
+    color: white !important;
+  }
+
+  .achievement-badge,
+  .vitality-card,
+  .gamification-elements {
+    display: none !important;
+  }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --discovery-gold: #fbbf24;
+    --discovery-blue: #3b82f6;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .quiz-option {
+    border-width: 2px;
+  }
+
+  .btn-discovery {
+    border: 2px solid currentColor;
+  }
+
+  .vitality-card {
+    border: 2px solid var(--discovery-gold);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .progress-bar::after {
+    animation: none;
+  }
+
+  .vitality-card,
+  .achievement-badge,
+  .streak-flame {
+    animation: none;
+  }
+}
