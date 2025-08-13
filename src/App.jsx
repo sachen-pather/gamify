@@ -394,23 +394,28 @@ const App = () => {
         </div>
 
         {/* --- FIX APPLIED HERE --- */}
-        {/* This block now correctly uses `fixed` for mobile and `absolute` for the phone frame */}
         {(isMobile || isPhoneFrame) && showChatbot && (
+          // 1. The Backdrop: Handles positioning and closing the modal.
           <div
             className={`${
-              isPhoneFrame
-                ? "absolute" // Correctly contained within the phone frame
-                : "fixed" // Correctly overlays the entire mobile viewport
-            } inset-0 z-50 flex flex-col justify-end bg-black bg-opacity-40 p-4`}
+              isPhoneFrame ? "absolute" : "fixed"
+            } inset-0 z-50 flex flex-col justify-end bg-black bg-opacity-40`}
+            onClick={toggleMobileChatbot} // This closes the chatbot
           >
-            <AIChatbot
-              show={showChatbot}
-              onToggle={toggleMobileChatbot}
-              currentLesson={lessonProgress.currentLesson}
-              lessonData={lessonProgress.lessonData}
-              isMobile={useMobileLayout}
-              isPhoneFrame={isPhoneFrame}
-            />
+            {/* 2. The Click Blocker: This div wraps the chatbot and stops clicks from reaching the backdrop. */}
+            <div
+              onClick={(e) => e.stopPropagation()} // This is the crucial fix.
+              className="p-4 pt-0" // Padding is now on the wrapper
+            >
+              <AIChatbot
+                show={showChatbot}
+                onToggle={toggleMobileChatbot}
+                currentLesson={lessonProgress.currentLesson}
+                lessonData={lessonProgress.lessonData}
+                isMobile={useMobileLayout}
+                isPhoneFrame={isPhoneFrame}
+              />
+            </div>
           </div>
         )}
 
