@@ -1,10 +1,12 @@
 import React from "react";
-import { TrendingUp, X, Star } from "lucide-react";
+import { Award, X, Zap, Trophy } from "lucide-react";
+const LevelUpModal = ({ level, onClose, isMobile, isPhoneFrame }) => {
+  // For desktop only - mobile uses MobileLevelUpModal
+  if (isMobile || isPhoneFrame) return null;
 
-const LevelUpModal = ({ level, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-discovery-gold p-8 text-center max-w-md mx-4 animate-bounce">
+      <div className="bg-white rounded-2xl shadow-2xl border-4 border-discovery-gold p-8 text-center max-w-md mx-4 animate-bounce relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -14,7 +16,7 @@ const LevelUpModal = ({ level, onClose }) => {
 
         {/* Celebration Icon */}
         <div className="w-20 h-20 bg-gradient-to-r from-discovery-gold to-discovery-blue rounded-full flex items-center justify-center mx-auto mb-6">
-          <TrendingUp className="w-10 h-10 text-white" />
+          <Trophy className="w-10 h-10 text-white" />
         </div>
 
         {/* Celebration Text */}
@@ -31,7 +33,7 @@ const LevelUpModal = ({ level, onClose }) => {
         {/* Rewards */}
         <div className="bg-gradient-to-r from-discovery-gold/10 to-discovery-blue/10 rounded-xl p-4 mb-6">
           <h3 className="font-semibold text-gray-900 mb-2 flex items-center justify-center">
-            <Star className="w-5 h-5 text-discovery-gold mr-2" />
+            <Award className="w-5 h-5 text-discovery-gold mr-2" />
             Level {level} Rewards
           </h3>
           <div className="text-sm text-gray-600 space-y-1">
@@ -41,12 +43,14 @@ const LevelUpModal = ({ level, onClose }) => {
           </div>
         </div>
 
-        <button onClick={onClose} className="btn-discovery">
+        <button
+          onClick={onClose}
+          className="bg-discovery-gold text-white px-6 py-3 rounded-lg font-semibold hover:bg-discovery-gold/90 transition-colors"
+        >
           Continue Learning
         </button>
       </div>
     </div>
   );
 };
-
 export default LevelUpModal;

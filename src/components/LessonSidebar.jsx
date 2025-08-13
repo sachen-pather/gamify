@@ -19,45 +19,66 @@ const LessonSidebar = ({
   vitalityPoints,
   userLevel,
   streakCount,
+  isMobile,
 }) => {
+  const sidebarWidth = isMobile ? "w-80" : collapsed ? "w-16" : "w-72";
+
   return (
     <div
-      className={`bg-white border-r border-gray-200 transition-all duration-300 ${
-        collapsed ? "w-16" : "w-72"
-      } flex flex-col shadow-sm`}
+      className={`bg-white border-r border-gray-200 transition-all duration-300 ${sidebarWidth} flex flex-col shadow-sm ${
+        isMobile ? "h-full" : ""
+      }`}
     >
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div className={`${isMobile ? "p-4" : "p-4"} border-b border-gray-200`}>
         <div className="flex items-center justify-between">
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <div>
-              <h3 className="text-gray-900 font-semibold text-sm">
+              <h3
+                className={`text-gray-900 font-semibold ${
+                  isMobile ? "text-base" : "text-sm"
+                }`}
+              >
                 Financial Literacy Academy
               </h3>
-              <p className="text-gray-600 text-xs mt-1">
+              <p
+                className={`text-gray-600 ${
+                  isMobile ? "text-sm" : "text-xs"
+                } mt-1`}
+              >
                 {completedLessons.length}/7 lessons completed
               </p>
             </div>
           )}
-          <button
-            onClick={onToggleCollapse}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            {collapsed ? (
-              <ChevronRight className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
+          {!isMobile && (
+            <button
+              onClick={onToggleCollapse}
+              className="text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {collapsed ? (
+                <ChevronRight className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Progress Bar */}
-      {!collapsed && (
-        <div className="p-4 border-b border-gray-200">
+      {(!collapsed || isMobile) && (
+        <div className={`${isMobile ? "p-4" : "p-4"} border-b border-gray-200`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-700 text-xs">Course Progress</span>
-            <span className="text-discovery-gold text-xs font-semibold">
+            <span
+              className={`text-gray-700 ${isMobile ? "text-sm" : "text-xs"}`}
+            >
+              Course Progress
+            </span>
+            <span
+              className={`text-discovery-gold ${
+                isMobile ? "text-sm" : "text-xs"
+              } font-semibold`}
+            >
               {Math.round(progressPercentage)}%
             </span>
           </div>
@@ -72,8 +93,8 @@ const LessonSidebar = ({
 
       {/* Lesson List */}
       <div className="flex-1 overflow-y-auto bg-gray-50">
-        {!collapsed && (
-          <div className="p-2">
+        {(!collapsed || isMobile) && (
+          <div className={`${isMobile ? "p-3" : "p-2"}`}>
             {Object.entries(lessons).map(([lessonNum, lesson]) => {
               const num = parseInt(lessonNum);
               const isActive = currentLesson === num;
@@ -84,7 +105,11 @@ const LessonSidebar = ({
                 <div
                   key={num}
                   onClick={() => !isLocked && onLessonClick(num)}
-                  className={`p-3 rounded-lg cursor-pointer transition-all mb-2 ${
+                  className={`${
+                    isMobile ? "p-4" : "p-3"
+                  } rounded-lg cursor-pointer transition-all ${
+                    isMobile ? "mb-3" : "mb-2"
+                  } ${
                     isActive
                       ? "bg-gradient-to-r from-discovery-gold/15 to-discovery-blue/15 border border-discovery-gold/40 shadow-sm"
                       : isCompleted
@@ -97,7 +122,11 @@ const LessonSidebar = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${
+                        className={`${
+                          isMobile ? "w-10 h-10" : "w-8 h-8"
+                        } rounded-full flex items-center justify-center ${
+                          isMobile ? "text-sm" : "text-xs"
+                        } font-semibold ${
                           isActive
                             ? "bg-discovery-gold text-white"
                             : isCompleted
@@ -108,14 +137,18 @@ const LessonSidebar = ({
                         }`}
                       >
                         {isCompleted ? (
-                          <CheckCircle className="w-4 h-4" />
+                          <CheckCircle
+                            className={`${isMobile ? "w-5 h-5" : "w-4 h-4"}`}
+                          />
                         ) : (
                           num
                         )}
                       </div>
                       <div className="flex-1">
                         <div
-                          className={`text-sm font-medium ${
+                          className={`${
+                            isMobile ? "text-base" : "text-sm"
+                          } font-medium ${
                             isActive
                               ? "text-discovery-gold"
                               : isCompleted
@@ -128,7 +161,7 @@ const LessonSidebar = ({
                           {lesson.title}
                         </div>
                         <div
-                          className={`text-xs ${
+                          className={`${isMobile ? "text-sm" : "text-xs"} ${
                             isLocked ? "text-gray-400" : "text-gray-600"
                           }`}
                         >
@@ -137,7 +170,11 @@ const LessonSidebar = ({
                       </div>
                     </div>
                     {isCompleted && (
-                      <Award className="w-4 h-4 text-discovery-gold" />
+                      <Award
+                        className={`${
+                          isMobile ? "w-5 h-5" : "w-4 h-4"
+                        } text-discovery-gold`}
+                      />
                     )}
                   </div>
                 </div>
@@ -148,26 +185,54 @@ const LessonSidebar = ({
       </div>
 
       {/* Gamification Stats */}
-      {!collapsed && (
-        <div className="p-4 border-t border-gray-200 bg-white">
+      {(!collapsed || isMobile) && (
+        <div
+          className={`${
+            isMobile ? "p-4" : "p-4"
+          } border-t border-gray-200 bg-white`}
+        >
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-gradient-to-r from-discovery-gold/10 to-discovery-blue/10 rounded-lg p-2 text-center border border-discovery-gold/20">
               <div className="flex items-center justify-center space-x-1">
-                <Zap className="w-3 h-3 text-discovery-gold" />
-                <span className="text-xs font-semibold text-discovery-gold">
+                <Zap
+                  className={`${
+                    isMobile ? "w-4 h-4" : "w-3 h-3"
+                  } text-discovery-gold`}
+                />
+                <span
+                  className={`${
+                    isMobile ? "text-sm" : "text-xs"
+                  } font-semibold text-discovery-gold`}
+                >
                   L{userLevel}
                 </span>
               </div>
-              <div className="text-xs text-gray-600">{vitalityPoints} VP</div>
+              <div
+                className={`${isMobile ? "text-sm" : "text-xs"} text-gray-600`}
+              >
+                {vitalityPoints} VP
+              </div>
             </div>
             <div className="bg-gradient-to-r from-discovery-blue/10 to-discovery-gold/10 rounded-lg p-2 text-center border border-discovery-blue/20">
               <div className="flex items-center justify-center space-x-1">
-                <Flame className="w-3 h-3 text-discovery-blue" />
-                <span className="text-xs font-semibold text-discovery-blue">
+                <Flame
+                  className={`${
+                    isMobile ? "w-4 h-4" : "w-3 h-3"
+                  } text-discovery-blue`}
+                />
+                <span
+                  className={`${
+                    isMobile ? "text-sm" : "text-xs"
+                  } font-semibold text-discovery-blue`}
+                >
                   {streakCount}
                 </span>
               </div>
-              <div className="text-xs text-gray-600">Streak</div>
+              <div
+                className={`${isMobile ? "text-sm" : "text-xs"} text-gray-600`}
+              >
+                Streak
+              </div>
             </div>
           </div>
         </div>
