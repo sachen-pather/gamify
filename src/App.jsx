@@ -92,17 +92,19 @@ const App = () => {
   useEffect(() => {
     const checkMobile = () => {
       const actuallyMobile = window.innerWidth < 768;
-      setIsMobile(actuallyMobile);
-      if (actuallyMobile) {
-        setSidebarCollapsed(true);
-        setShowChatbot(false);
-        setShowMobileSidebar(false);
+      if (actuallyMobile !== isMobile) {
+        setIsMobile(actuallyMobile);
+        if (actuallyMobile) {
+          setSidebarCollapsed(true);
+          setShowChatbot(false);
+          setShowMobileSidebar(false);
+        }
       }
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     if (isPhoneFrame) {
