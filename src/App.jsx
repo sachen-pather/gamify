@@ -76,12 +76,10 @@ const DesktopChatToggle = ({ showChatbot, onToggle }) => {
 };
 
 const App = () => {
-  // Custom hooks for state management
   const gamification = useGamification();
-  const lessonProgress = useLessonProgress(7); // Initialized with total lessons
+  const lessonProgress = useLessonProgress(7);
   const quiz = useQuiz();
 
-  // UI state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showChatbot, setShowChatbot] = useState(false);
@@ -313,8 +311,7 @@ const App = () => {
             />
           ))}
         <AppHeader
-          vitalityPoints={gamification.vitalityPoints}
-          userLevel={gamification.userLevel}
+          {...gamification}
           isMobile={useMobileLayout}
           onToggleSidebar={toggleMobileSidebar}
           onToggleChatbot={toggleMobileChatbot}
@@ -334,8 +331,6 @@ const App = () => {
             useMobileLayout ? "h-[calc(100%-64px)]" : "h-[calc(100vh-88px)]"
           } relative`}
         >
-          {/* --- FIX APPLIED IN BOTH SIDEBARS BELOW --- */}
-
           {useMobileLayout && showMobileSidebar && (
             <div
               className={`absolute left-0 top-0 h-full z-50 transform transition-transform duration-300 ${
@@ -373,7 +368,6 @@ const App = () => {
               />
             </div>
           )}
-
           <div className="flex-1 flex flex-col bg-white overflow-hidden">
             <ContentTabs
               activeTab={activeTab}
@@ -398,8 +392,17 @@ const App = () => {
             </div>
           )}
         </div>
-        {useMobileLayout && showChatbot && (
-          <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black bg-opacity-40 p-4 pb-20">
+
+        {/* --- FIX APPLIED HERE --- */}
+        {/* This block now correctly uses `fixed` for mobile and `absolute` for the phone frame */}
+        {(isMobile || isPhoneFrame) && showChatbot && (
+          <div
+            className={`${
+              isPhoneFrame
+                ? "absolute" // Correctly contained within the phone frame
+                : "fixed" // Correctly overlays the entire mobile viewport
+            } inset-0 z-50 flex flex-col justify-end bg-black bg-opacity-40 p-4`}
+          >
             <AIChatbot
               show={showChatbot}
               onToggle={toggleMobileChatbot}
@@ -410,6 +413,7 @@ const App = () => {
             />
           </div>
         )}
+
         {useMobileLayout && !showChatbot && (
           <button
             onClick={toggleMobileChatbot}
