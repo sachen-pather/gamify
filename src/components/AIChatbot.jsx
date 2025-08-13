@@ -14,6 +14,7 @@ const AIChatbot = ({
   const [chatInput, setChatInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [aiThinking, setAiThinking] = useState(false);
+  const [currentProvider, setCurrentProvider] = useState("groq"); // Track which API is being used
 
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -43,15 +44,16 @@ const AIChatbot = ({
 
   const sendMessageToGroq = async (messages) => {
     const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-    // Debug: Log if key is set (without exposing the full key)
     console.log(
       "Groq API Key status:",
       apiKey
         ? "Loaded (starts with: " + apiKey.slice(0, 3) + "...)"
         : "Missing!"
     );
-    if (!apiKey)
-      return "Error: API key is missing. Check your .env file and restart the dev server.";
+
+    if (!apiKey) {
+      throw new Error("Groq API key is missing");
+    }
 
     try {
       const response = await fetch(
@@ -77,15 +79,128 @@ const AIChatbot = ({
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         throw new Error(
-          errorData?.error?.message || `API error: ${response.status}`
+          errorData?.error?.message || `Groq API error: ${response.status}`
         );
       }
 
       const data = await response.json();
       return data.choices[0].message.content.trim();
     } catch (error) {
-      console.error("Groq API Error:", error.message); // Debug: Log full error in console
-      return `Sorry, an error occurred: "${error.message}". Try checking your API key or network.`;
+      console.error("Groq API Error:", error.message);
+      throw error;
+    }
+  };
+
+  const sendMessageToGemini = async (messages) => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    console.log(
+      "Gemini API Key status:",
+      apiKey
+        ? "Loaded (starts with: " + apiKey.slice(0, 3) + "...)"
+        : "Missing!"
+    );
+
+    if (!apiKey) {
+      throw new Error("Gemini API key is missing");
+    }
+
+    try {
+      // Convert messages to Gemini format
+      const systemPrompt = getSystemPrompt();
+      const conversationHistory = messages.map((msg) => {
+        if (msg.role === "user") {
+          return {
+            role: "user",
+            parts: [{ text: msg.content }],
+          };
+        } else {
+          return {
+            role: "model",
+            parts: [{ text: msg.content }],
+          };
+        }
+      });
+
+      // Combine system prompt with the latest user message
+      const lastUserMessage = messages[messages.length - 1];
+      const promptWithContext = `${systemPrompt}\n\nUser: ${lastUserMessage.content}`;
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: promptWithContext }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 150,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.error?.message || `Gemini API error: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      return data.candidates[0].content.parts[0].text.trim();
+    } catch (error) {
+      console.error("Gemini API Error:", error.message);
+      throw error;
+    }
+  };
+
+  const sendMessage = async (messages) => {
+    // Try Groq first
+    try {
+      if (currentProvider === "groq") {
+        const response = await sendMessageToGroq(messages);
+        return response;
+      }
+    } catch (error) {
+      console.log("Groq failed, trying Gemini fallback...");
+      setCurrentProvider("gemini");
+    }
+
+    // Try Gemini as fallback
+    try {
+      const response = await sendMessageToGemini(messages);
+      return response;
+    } catch (error) {
+      console.error("Both APIs failed:", error.message);
+
+      // Check which APIs are available
+      const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+      let errorMessage = "Sorry, I'm having trouble connecting right now. ";
+
+      if (!groqKey && !geminiKey) {
+        errorMessage +=
+          "Please check that your API keys are properly set in your .env file (VITE_GROQ_API_KEY or VITE_GEMINI_API_KEY).";
+      } else if (!groqKey) {
+        errorMessage +=
+          "Groq API key is missing. Add VITE_GROQ_API_KEY to your .env file.";
+      } else if (!geminiKey) {
+        errorMessage +=
+          "Both Groq and Gemini APIs failed. Consider adding VITE_GEMINI_API_KEY as a backup.";
+      } else {
+        errorMessage += `Error: ${error.message}`;
+      }
+
+      return errorMessage;
     }
   };
 
@@ -108,7 +223,8 @@ const AIChatbot = ({
       role: msg.type === "user" ? "user" : "assistant",
       content: msg.message,
     }));
-    const aiResponse = await sendMessageToGroq([
+
+    const aiResponse = await sendMessage([
       ...historyMessages,
       { role: "user", content: message },
     ]);
@@ -126,9 +242,9 @@ const AIChatbot = ({
   const handleGenerateAction = async (prompt) => {
     if (isTyping || aiThinking) return;
     setAiThinking(true);
-    const aiResponse = await sendMessageToGroq([
-      { role: "user", content: prompt },
-    ]);
+
+    const aiResponse = await sendMessage([{ role: "user", content: prompt }]);
+
     const aiMessage = {
       id: Date.now(),
       type: "ai",
@@ -146,6 +262,13 @@ const AIChatbot = ({
     }
   };
 
+  const getProviderIndicator = () => {
+    if (currentProvider === "gemini") {
+      return <span className="text-xs opacity-75">(via Gemini)</span>;
+    }
+    return <span className="text-xs opacity-75">(via Groq)</span>;
+  };
+
   if (!show) return null;
 
   // --- MOBILE LAYOUT: Using YOUR proven layout ---
@@ -157,7 +280,9 @@ const AIChatbot = ({
           <div className="flex justify-between items-center">
             <div>
               <h3 className="font-semibold text-sm">AI Learning Assistant</h3>
-              <p className="text-xs text-white/90">Ready to help</p>
+              <p className="text-xs text-white/90">
+                Ready to help {getProviderIndicator()}
+              </p>
             </div>
             <button
               onClick={onToggle}
@@ -264,7 +389,9 @@ const AIChatbot = ({
               </h3>
               <div className="flex items-center space-x-2">
                 <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                <p className="text-white/90 text-xs">Ready to help</p>
+                <p className="text-white/90 text-xs">
+                  Ready to help {getProviderIndicator()}
+                </p>
               </div>
             </div>
           </div>
